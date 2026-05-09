@@ -1,0 +1,54 @@
+
+  {
+    "customer_id": 101,
+    "name": "Alice Johnson",
+    "email": "alice@example.com",
+    "orders": [
+      {
+        "order_id": 5001,
+        "date": "2024-02-01",
+        "total": 120.50,
+        "items": [
+          {"product": "Laptop", "price": 1000.00, "quantity": 1},
+          {"product": "Mouse", "price": 20.50, "quantity": 1}
+        ],
+        "payment": {
+          "method": "Credit Card",
+          "status": "Completed"
+        }
+      }
+    ]
+  },
+  {
+    "customer_id": 102,
+    "name": "Bob Williams",
+    "email": "bob@example.com",
+    "orders": [
+      {
+        "order_id": 5002,
+        "date": "2024-02-03",
+        "total": 250.00,
+        "items": [
+          {"product": "Smartphone", "price": 700.00, "quantity": 1},
+          {"product": "Charger", "price": 50.00, "quantity": 2}
+        ],
+        "payment": {
+          "method": "PayPal",
+          "status": "Pending"
+        }
+      },
+      {
+        "order_id": 5003,
+        "date": "2024-02-07",
+        "total": 75.00,
+        "items": [
+          {"product": "Headphones", "price": 75.00, "quantity": 1}
+        ],
+        "payment": {
+          "method": "Credit Card",
+          "status": "Completed"
+        }
+      }
+    ]
+  }
+]
