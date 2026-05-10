@@ -1,0 +1,103 @@
+import re
+import string
+import unicodedata
+import contractions
+import ftfy
+import emoji
+from spellchecker import SpellChecker
+
+# Initialize SpellChecker
+spell = SpellChecker()
+
+# DATA ENGINEERING BEST PRACTICE: Define a whitelist of terms to protect
+TECHNICAL_WHITELIST = {'html', 'div', 'usd', 'json', 'python', 'dataframe', 'id', 'source'}
+
+def fix_spelling(text):
+    words = text.split()
+    corrected = []
+    for word in words:
+        # Step A: Remove punctuation from word just for the check
+        clean_word = word.strip(string.punctuation).lower()
+        
+        # Step B: Protection Logic
+        if clean_word in TECHNICAL_WHITELIST or not word.isalpha():
+            corrected.append(word)
+        else:
+            # Only correct if it's a standard English word typo
+            correction = spell.correction(word)
+            corrected.append(correction if correction else word)
+    return ' '.join(corrected)
+
+def clean_text(text, correct_spelling=True):
+    # 1. Fix encoding (liké thís -> like this)
+    text = ftfy.fix_text(text)
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+
+    # 2. Remove HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # 3. Expand contractions (can't -> cannot)
+    text = contractions.fix(text)
+
+    # 4. Remove emojis
+    text = emoji.replace_emoji(text, replace='')
+
+    # 5. Standardize price formats ($29,99 -> 29.99)
+    # Handles both $ prefix and USD suffix
+    text = re.sub(r'\$(\d+)[,\.](\d+)', r'\1.\2', text)
+    text = re.sub(r'(\d+)[,\.](\d+)\s*(?:USD|usd|\$)', r'\1.\2', text)
+
+    # 6. Mask PII (Emails & Phone Numbers)
+    # Instead of deleting, we replace with placeholders to keep structure
+    text = re.sub(r'\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b', '[EMAIL]', text)
+    text = re.sub(r'\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}', '[PHONE]', text)
+
+    # 7. Lowercase
+    text = text.lower()
+
+    # 8. Remove @@ and ## symbols
+    text = re.sub(r'[@#]{2,}', '', text)
+
+    # 9. Fix repeated characters (misspelleddd -> misspelled)
+    text = re.sub(r'(.)\1{2,}', r'\1', text)
+
+    # 10. Collapse repeated punctuation (!!!! -> !)
+    text = re.sub(r'([!?.,]){2,}', r'\1', text)
+
+    # 11. Selective Punctuation Removal
+    # Keep . , ! ? for readability; remove others like [] {} ;
+    keep_punct = set('.,!?[]:') # Added [] and : to keep intact
+    text = ''.join(ch for ch in text if ch not in string.punctuation or ch in keep_punct)
+
+    # 12. Normalize whitespace (keeps everything on one line per record)
+    text = re.sub(r'\s+', ' ', text).strip()
+
+    # 13. Controlled Spell Correction
+    if correct_spelling:
+        text = fix_spelling(text)
+
+    return text
+
+# --- EXECUTION BLOCK ---
+try:
+    from google.colab import files
+    uploaded = files.upload()
+    filename = list(uploaded.keys())[0]
+except Exception:
+    filename = 'text_sample.txt'
+
+with open(filename, 'r', encoding='utf-8') as f:
+    raw_text = f.read()
+
+cleaned_text = clean_text(raw_text, correct_spelling=True)
+
+# Output and Save
+print("\n=== CLEANED TEXT ===\n", cleaned_text)
+
+with open('final_cleaned_data.txt', 'w', encoding='utf-8') as f:
+    f.write(cleaned_text)
+
+try:
+    files.download('final_cleaned_data.txt')
+except:
+    pass
