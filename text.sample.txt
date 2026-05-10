@@ -1,0 +1,16 @@
+Thís ís à próblemátic téxt fíle!! It contains    **extra spaces** ,,,,, special characters!!!💥🔥🚀
+Some words are misspelleddd,   and encoding  issues   liké thís cäusé problëms.    
+        
+Prices are inconsistent:  $29.99, 29.99 USD, 29,99$.
+
+Emails & phone numbers may be embedded: contact@domain.com, (123)-456-7890.
+
+Repeated punctuations!!!!! should be removed, along with **random symbols** like @@,##.
+
+stopwords like "the", "is", and "a" appear often.
+
+HTML tags might be present: <div>This is inside a div</div>
+
+And sometimes, contractions won't expand: "can't", "won't", "shouldn't".
+
+Random numeric values: 123456, 98765, 2024.
